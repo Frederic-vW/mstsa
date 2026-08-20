@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "cffi>=1.15"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mstsa"
+version = "0.4.2"
+description = "Microstate Time Series Analysis"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Frederic von Wegner", email = "fvw.github@gmail.com" },
+]
+keywords = [
+    "EEG",
+    "microstate",
+    "time series",
+    "information theory",
+    "Markov chain",
+    "entropy",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.21",
+    "scipy>=1.7",
+    "matplotlib>=3.4",
+    "numba>=0.54",
+    "cffi>=1.15",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "sphinx",
+    "sphinx-rtd-theme",
+    "numpydoc",
+]
+acd = [
+    "statsmodels>=0.13",
+    "powerlaw>=1.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/Frederic-vW/mstsa"
+"Bug Tracker" = "https://github.com/Frederic-vW/mstsa/issues"
+Documentation = "https://github.com/Frederic-vW/mstsa#readme"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mstsa*"]

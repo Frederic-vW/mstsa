@@ -1,0 +1,41 @@
+# Build artifacts
+dist/
+build/
+*.egg-info/
+mstsa/mstsa/
+mstsa/home/
+
+# Compiled / cached
+__pycache__/
+*.py[cod]
+*.so
+*.o
+*.nbc
+*.nbi
+
+# Test / tool caches
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Editor / tool config (local, not for public repo)
+.claude/
+mstsa/.claude/
+
+# Paper build artifacts (paper.pdf is committed; intermediates are not)
+paper/publishing-artifacts/
+paper/paper.tex
+paper/paper.bib.sav.tmp
+
+# bioRxiv preprint copy: local-only, not part of the public repo
+paper/bioRxiv/
+
+# Personal build/publish tooling: hardcoded local paths or depends on
+# machine-local tools (~/.local/bin/compile-joss-pdf), not useful/portable
+# for external contributors
+push_testpypi.sh
+paper/compile_joss_pdf.sh
+paper/compile_joss_pdf.txt
+
+# Backup of the old .git history (had Claude co-authorship trailers baked
+# into commit messages) -- kept locally for reference only, never tracked
+.git-old-with-claude-trailers/
