@@ -21,13 +21,17 @@ __pycache__/
 .claude/
 mstsa/.claude/
 
-# Paper build artifacts (source .md/.bib are committed; compiled .tex/.pdf
-# intermediates are not -- the JOSS-branded PDF is not shown in the repo
-# until JOSS acceptance, see paper/arXiv/ below)
+# Paper source and build artifacts: local-only, not part of the public
+# repo (manuscript source/citations and the JOSS-branded PDF stay
+# unpublished until JOSS acceptance; see paper/arXiv/ below for the one
+# manuscript file that is public)
 paper/publishing-artifacts/
 paper/paper.tex
 paper/paper.pdf
 paper/paper.bib.sav.tmp
+paper/paper.bib
+paper/paper.md
+paper/joss_resources/
 
 # arXiv preprint copy: local-only, not part of the public repo, EXCEPT the
 # final compiled PDF (JOSS logo/branding stripped) -- that one stands in
