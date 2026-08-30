@@ -43,6 +43,7 @@ from .markov import (
     entropy_rates_mc,
     # Information / auto-information
     aif_mc,
+    aif_mc_approx,
     # Sample entropy
     sample_entropy_mc,
     sample_entropies_mc,

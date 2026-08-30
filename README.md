@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
+[![DOI](https://zenodo.org/badge/1340581416.svg)](https://doi.org/10.5281/zenodo.22181409)
 
 `mstsa` is a Python package for information-theoretic and statistical analysis
 of discrete symbolic time series, with a particular focus on EEG microstate
@@ -40,7 +41,9 @@ The source code is available at [GitHub](https://github.com/Frederic-vW/mstsa).
 ### Markov chain analysis
 - First-order Markov chain surrogate generation (`mc_sample_path`)
 - Theoretical entropy rate under Markov assumption (`entropy_rate_mc`, `entropy_rates_mc`)
-- Theoretical auto-information function of a Markov chain (`aif_mc`)
+- Theoretical auto-information function of a Markov chain (`aif_mc`), and
+  its closed-form exponential (eigenvalue) approximation from a transition
+  matrix alone (`aif_mc_approx`)
 - Expected sample entropy under a Markov model (`sample_entropy_mc`, `sample_entropies_mc`)
 - Theoretical duration, occurrence, and coverage under a Markov model (`dur_occ_cov_mc`)
 - Joint and trajectory probabilities under a Markov model (`p_joint_mc`, `p_ngram_mc`)

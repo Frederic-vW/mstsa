@@ -21,13 +21,20 @@ __pycache__/
 .claude/
 mstsa/.claude/
 
-# Paper build artifacts (paper.pdf is committed; intermediates are not)
+# Paper build artifacts (source .md/.bib are committed; compiled .tex/.pdf
+# intermediates are not -- the JOSS-branded PDF is not shown in the repo
+# until JOSS acceptance, see paper/arXiv/ below)
 paper/publishing-artifacts/
 paper/paper.tex
+paper/paper.pdf
 paper/paper.bib.sav.tmp
 
-# bioRxiv preprint copy: local-only, not part of the public repo
-paper/bioRxiv/
+# arXiv preprint copy: local-only, not part of the public repo, EXCEPT the
+# final compiled PDF (JOSS logo/branding stripped) -- that one stands in
+# for the JOSS PDF in the repo until JOSS acceptance (JOSS requires 6
+# months of public history, not yet met)
+paper/arXiv/*
+!paper/arXiv/paper.pdf
 
 # Personal build/publish tooling: hardcoded local paths or depends on
 # machine-local tools (~/.local/bin/compile-joss-pdf), not useful/portable

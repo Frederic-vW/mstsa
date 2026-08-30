@@ -543,6 +543,113 @@ def aif_mc(x: ScalarIntArray, lmax: int, base: str = '2') -> ScalarFloatArray:
     return mi
 
 
+def aif_mc_approx(T: ScalarFloatArray, lmax: int, base: str = '2') -> ScalarFloatArray:
+    """Exponential approximation to the AIF of a first-order Markov chain,
+    from the transition matrix alone.
+
+    For large lags, the autoinformation :math:`I(X_t; X_{t+l})` of
+    a first-order Markov chain decays as :math:`I(l) \\approx C \\lambda^{2l}`,
+    where :math:`\\lambda` is the second-largest-magnitude eigenvalue of
+    *T* (the leading eigenvalue :math:`\\lambda_0 = 1` governs the
+    stationary distribution and drops out of the joint distribution's
+    deviation from independence). The *squared* exponent arises because
+    mutual information is, to leading order, a quadratic functional of
+    that deviation, while the deviation itself decays linearly in
+    :math:`\\lambda^l`. Equivalently, :math:`I(l) \\approx C \\exp(-l/\\tau)`
+    with AIF relaxation time :math:`\\tau = -1/(2 \\log\\lambda)`, which for
+    :math:`\\lambda` close to 1 is approximately *half* of the chain's own
+    relaxation time :math:`1/(1-\\lambda)` (see :func:`relaxation_time`).
+
+    The amplitude *C* is obtained analytically from the left/right
+    eigenvectors of *T* paired with :math:`\\lambda` and the stationary
+    distribution — no data beyond *T* is required.
+
+    Parameters
+    ----------
+    T : ndarray of float, shape (K, K)
+        Row-stochastic transition matrix.
+    lmax : int
+        Number of lags to return. ``mi[0]`` is the marginal entropy
+        :math:`H(\\pi)` of the stationary distribution (the exponential
+        approximation is not meaningful at lag 0); ``mi[1:lmax]`` are the
+        lag-1 .. lag-(lmax-1) exponential AIF approximation.
+    base : {'2', 'e'}, optional
+        Logarithm base: ``'2'`` for bits (default), ``'e'`` for nats.
+
+    Returns
+    -------
+    mi : ndarray of float, shape (lmax,)
+        Exponential-approximation AIF coefficients, directly comparable to
+        :func:`aif_mc` and :func:`mstsa.aif`.
+
+    Notes
+    -----
+    Assumes a diagonalizable *T* with a real, non-degenerate
+    second-largest eigenvalue — the common case for near-reversible
+    microstate transition matrices. A complex second eigenvalue is reduced
+    to its real part, and the approximation degrades in that case (a
+    genuinely complex sub-leading eigenvalue produces damped oscillations,
+    not pure exponential decay).
+
+    Validated against empirical Markov surrogates of real K=4 EEG
+    microstate sequences: the predicted *decay rate* (the slope in a
+    log-linear AIF-vs-lag plot) matches the exact/empirical curves closely
+    across subjects. The predicted *amplitude* is less reliable for these
+    specific matrices, because empirical K=4 microstate transition
+    matrices typically have three subleading eigenvalues clustered close
+    together in magnitude (e.g. 0.88, 0.88, 0.86) rather than one
+    well-separated second eigenvalue — the single-mode truncation this
+    function relies on then omits comparable-sized contributions from the
+    third (and fourth) eigenmodes. The approximation is exact in the
+    asymptotic (large-lag) limit whenever the second eigenvalue is in fact
+    well separated from the rest of the spectrum.
+
+    References
+    ----------
+    .. [1] von Wegner, F., Tagliazucchi, E., & Laufs, H. (2017).
+           Information-theoretical analysis of resting state EEG
+           microstate sequences — non-Markovianity, non-stationarity and
+           periodicities. *NeuroImage*, 158, 99-111.
+           https://doi.org/10.1016/j.neuroimage.2017.06.063
+    """
+    _log = np.log2 if base == '2' else np.log
+    K = T.shape[0]
+    if K < 2:
+        raise ValueError("aif_mc_approx: K >= 2 required.")
+
+    pi = p_stationary(T)
+
+    eigvals, V = np.linalg.eig(T)
+    eigvals_T, U = np.linalg.eig(T.T)
+
+    order = np.argsort(-np.abs(eigvals)) # eigenvalue indices, descending
+    eigvals = eigvals[order] # eigenvalues, descending
+    V = V[:, order]
+
+    lam2 = float(np.real(eigvals[1])) # 2nd largest eigenvalue (real part)
+    v2 = np.real(V[:, 1]) # corresponding eigenvector
+
+    # index of matching eigenvalue in T.T
+    j = int(np.argmin(np.abs(eigvals_T - eigvals[1])))
+    # corresponding left eigenvector of T (right eigenvector of T.T)
+    u2 = np.real(U[:, j])
+
+    # normalize to bi-orthogonality u2 . v2 = 1 (the amplitude below is
+    # invariant to the remaining scale/sign freedom in the eigenvectors)
+    u2 = u2 / np.dot(u2, v2)
+
+    C = 0.5 * np.sum(pi * v2**2) * np.sum(u2**2 / pi)
+    if base == '2':
+        C /= np.log(2)
+
+    mi = np.zeros(lmax)
+    mi[0] = -np.sum(pi[pi > 0] * _log(pi[pi > 0]))
+    for l in range(1, lmax):
+        mi[l] = C * lam2**(2 * l)
+
+    return mi
+
+
 def dur_occ_cov_mc(x: ScalarIntArray, fs: float, steady_state: bool = False) -> Tuple[ScalarFloatArray, ScalarFloatArray, ScalarFloatArray]:
     """Theoretical microstate duration, occurrence, and coverage under a Markov model.
 

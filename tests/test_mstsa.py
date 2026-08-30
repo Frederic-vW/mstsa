@@ -25,7 +25,7 @@ from mstsa import (
     tpm_cond, tpm_joint, tpm_joint_exp,
     p_stationary, generator_matrix,
     mc_sample_path, pmf, p_ngram_mc,
-    max_entropy_T,
+    max_entropy_T, aif_mc, aif_mc_approx,
     # ACD / duration analysis
     simulate_acd, fit_acd, select_acd_order, acd_analysis,
     # sojourn-time distribution fitting
@@ -231,6 +231,45 @@ def test_aif_lag0_equals_h1():
     """AIF at lag 0 = H1 (mutual information of X with itself = self-entropy)."""
     aif_vals = aif(SEQ, K, kmax=5)
     assert aif_vals[0] == pytest.approx(h1(SEQ, K), rel=1e-6)
+
+
+def test_aif_mc_approx_lag0_equals_stationary_entropy():
+    """aif_mc_approx lag-0 value is H(pi), matching aif_mc's lag-0 (H1) up
+    to sampling error for a chain simulated from the same T."""
+    T = np.array([
+        [0.70, 0.10, 0.15, 0.05],
+        [0.20, 0.55, 0.10, 0.15],
+        [0.05, 0.25, 0.60, 0.10],
+        [0.10, 0.05, 0.20, 0.65],
+    ])
+    x = mc_sample_path(T=T, n=50_000)
+    mi_exact = aif_mc(x, lmax=3, base='2')
+    mi_approx = aif_mc_approx(tpm_cond(x, len(np.unique(x))), lmax=3, base='2')
+    assert mi_approx[0] == pytest.approx(mi_exact[0], rel=0.02)
+
+
+def test_aif_mc_approx_matches_exact_decay_rate_and_converges():
+    """For a chain with a well-separated second eigenvalue, aif_mc_approx's
+    fixed per-lag decay ratio lambda2**2 matches aif_mc's asymptotic decay
+    ratio, and the two curves converge (ratio -> 1) at large-but-not-too-large
+    lags, before finite-sample noise in the exact (data-based) curve dominates."""
+    T = np.array([
+        [0.70, 0.10, 0.15, 0.05],
+        [0.20, 0.55, 0.10, 0.15],
+        [0.05, 0.25, 0.60, 0.10],
+        [0.10, 0.05, 0.20, 0.65],
+    ])
+    x = mc_sample_path(T=T, n=500_000)
+    lmax = 10
+    mi_exact = aif_mc(x, lmax, base='2')
+    mi_approx = aif_mc_approx(tpm_cond(x, len(np.unique(x))), lmax, base='2')
+
+    # approx decays by a constant factor lambda2**2 every lag
+    ratios = mi_approx[2:] / mi_approx[1:-1]
+    np.testing.assert_allclose(ratios, ratios[0], rtol=1e-6)
+
+    # exact/approx ratio approaches 1 as higher-order eigenmodes decay away
+    assert abs(mi_exact[8] / mi_approx[8] - 1.0) < 0.1
 
 
 # ── 9. ACD / duration analysis ───────────────────────────────────────────────
