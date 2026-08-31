@@ -5,6 +5,13 @@ name: Build and publish wheels
 # across CPython 3.9-3.13, so `pip install mstsa` never needs a C
 # compiler on the end user's machine.
 #
+# macos-13 (Intel) builds in its own separate, best-effort job
+# (build_wheels_macos13) that `publish` does not wait on -- its runners
+# are frequently capacity-constrained on private repos and can queue far
+# longer than every other platform combined, so a stuck Intel-Mac runner
+# should never block releasing everything else. If/when it succeeds, add
+# that wheel to the release with a follow-up `twine upload --skip-existing`.
+#
 # Trigger manually (Actions tab -> this workflow -> Run workflow) to do a
 # dry-run build without publishing, or check "publish to PyPI" to publish.
 # Pushing a tag matching v* always builds AND publishes.
@@ -27,8 +34,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
-        # macos-13 = Intel (x86_64), macos-14 = Apple Silicon (arm64)
+        # macos-13 (Intel) is built in its own separate job below, on its
+        # own timeline -- its runners are frequently capacity-constrained
+        # on private repos and can queue far longer than every other
+        # platform combined. publish does not wait on it, so a slow/stuck
+        # Intel-Mac runner never blocks releasing everything else.
+        os: [ubuntu-latest, windows-latest, macos-14]  # macos-14 = Apple Silicon (arm64)
 
     steps:
       - uses: actions/checkout@v4
@@ -54,6 +65,30 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}
+          path: wheelhouse/*.whl
+
+  build_wheels_macos13:
+    name: wheels on macos-13 (Intel, best-effort)
+    runs-on: macos-13
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.21
+        env:
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_SKIP: "*-musllinux* *-win32 *-manylinux_i686"
+          CIBW_ARCHS_MACOS: "auto"
+          CIBW_TEST_COMMAND: >
+            python -c "import mstsa; import numpy as np;
+            x = np.random.default_rng(0).integers(0, 4, size=2000);
+            print('hk:', mstsa.hk(x, K=4, k=2));
+            print('lz76:', mstsa.lz76(x[:500]))"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-13
           path: wheelhouse/*.whl
 
   build_sdist:

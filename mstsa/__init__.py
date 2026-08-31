@@ -103,6 +103,6 @@ from .acd import (
     plot_duration_acf_pacf,
 )
 
-__version__ = "0.4.2"
+__version__ = "0.4.3"
 __author__ = "Frederic von Wegner"
 __email__ = "fvw.github@gmail.com"
