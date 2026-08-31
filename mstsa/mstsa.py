@@ -1177,7 +1177,7 @@ def sample_entropy_disc(y: ScalarIntArray, m: int,
     if _lib_se is not None:
         buf_se = np.zeros(m + 1, dtype=np.float64)
         se_c = _ffi_se.cast("double *", _ffi_se.from_buffer(buf_se))
-        y_c  = _ffi_se.cast("long *",   _ffi_se.from_buffer(y_long))
+        y_c  = _ffi_se.cast("long long *", _ffi_se.from_buffer(y_long))
         _lib_se.sample_entropy_disc_fast(se_c, y_c, n, m + 1)
         e = buf_se
         if base == '2':

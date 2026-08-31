@@ -9,12 +9,18 @@ gcc -shared c_entropy.c -o libcentropy.so -lm -fPIC
 double c_entropy(int *x, size_t n, size_t m, size_t k)
 {
     size_t i, j, l;
-    int n_hist = (int)(pow(m,k));
+    size_t n_hist = (size_t)(pow(m,k));
     double h;
-    double hist[n_hist];
-    
-    // powers-of-m to convert k-dim to 1-dim array indices
-    size_t ns[k-1]; // [1, m, m^2, ..., m^(k-1)]
+    // Heap-allocated, not a C99 variable-length array: VLAs are permanently
+    // unsupported by MSVC, which would otherwise block building this
+    // extension on Windows.
+    double *hist = (double *)malloc(n_hist * sizeof(double));
+
+    // powers-of-m to convert k-dim to 1-dim array indices; needs k
+    // elements (indices 0..k-1 are written below), not k-1 -- the
+    // previous "size_t ns[k-1]" VLA sizing was an off-by-one buffer
+    // overflow that happened not to crash under typical stack layouts.
+    size_t *ns = (size_t *)malloc(k * sizeof(size_t)); // [1, m, m^2, ..., m^(k-1)]
     for (i=0; i<k; i++) {
         if (i==0) {
             ns[i] = 1;
@@ -50,6 +56,9 @@ double c_entropy(int *x, size_t n, size_t m, size_t k)
             h -= (hist[i]*log(hist[i]));
         }
     }
+
+    free(hist);
+    free(ns);
 
     return h;
 }

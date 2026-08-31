@@ -41,7 +41,7 @@ double sample_entropy_cont(double* x, size_t n, size_t m, size_t tau, double r) 
     return se;
 }
 
-double sample_entropy_disc(long* x, size_t n, size_t m, size_t tau) {
+double sample_entropy_disc(long long* x, size_t n, size_t m, size_t tau) {
     size_t i, j, k;
     double A, B, se;
     B = 0.0;
@@ -73,7 +73,9 @@ int sample_entropy_cont_fast(double* se, double* x, size_t n, size_t m, double r
     size_t i, j, k;
     size_t nj, jj, m1;
     double x1;
-    long N = (long) (n*(n-1)/2);
+    // n*(n-1)/2 overflows a 32-bit long (Windows) for realistic sequence
+    // lengths (e.g. n > ~65536); long long is 64-bit on every platform.
+    long long N = (long long) (n*(n-1)/2);
     double* A = (double *) calloc(m, sizeof(double));
     double* B = (double *) calloc(m, sizeof(double));
     double* p = (double *) calloc(m, sizeof(double));
@@ -121,11 +123,13 @@ int sample_entropy_cont_fast(double* se, double* x, size_t n, size_t m, double r
     return 0;
 }
 
-int sample_entropy_disc_fast(double* se, long* x, size_t n, size_t m) {
+int sample_entropy_disc_fast(double* se, long long* x, size_t n, size_t m) {
     size_t i, j, k;
     size_t nj, jj, m1;
-    long x1;
-    long N = (long) (n*(n-1)/2);
+    long long x1;
+    // n*(n-1)/2 overflows a 32-bit long (Windows) for realistic sequence
+    // lengths (e.g. n > ~65536); long long is 64-bit on every platform.
+    long long N = (long long) (n*(n-1)/2);
     double* A = (double *) calloc(m, sizeof(double));
     double* B = (double *) calloc(m, sizeof(double));
     double* p = (double *) calloc(m, sizeof(double));
