@@ -27,22 +27,19 @@ mstsa/_lz76.c
 .claude/
 mstsa/.claude/
 
-# Paper source and build artifacts: local-only, not part of the public
-# repo (manuscript source/citations and the JOSS-branded PDF stay
-# unpublished until JOSS acceptance; see paper/arXiv/ below for the one
-# manuscript file that is public)
+# Paper build artifacts: local-only (source paper.md/paper.bib ARE
+# tracked -- JOSS's Whedon build system needs them present in the repo).
+# The JOSS-branded compiled PDF stays unpublished until JOSS acceptance;
+# see paper/arXiv/ below for the one compiled manuscript PDF that is public.
 paper/publishing-artifacts/
 paper/paper.tex
 paper/paper.pdf
 paper/paper.bib.sav.tmp
-paper/paper.bib
-paper/paper.md
 paper/joss_resources/
 
 # arXiv preprint copy: local-only, not part of the public repo, EXCEPT the
 # final compiled PDF (JOSS logo/branding stripped) -- that one stands in
-# for the JOSS PDF in the repo until JOSS acceptance (JOSS requires 6
-# months of public history, not yet met)
+# for the JOSS PDF in the repo until JOSS acceptance
 paper/arXiv/*
 !paper/arXiv/paper.pdf
 
