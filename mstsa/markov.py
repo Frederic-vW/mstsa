@@ -3,7 +3,7 @@
 import warnings
 
 import numpy as np
-from numba import jit
+from ._compat import jit
 
 from typing import Tuple
 from .mstsa import ScalarFloatArray, ScalarIntArray, h1

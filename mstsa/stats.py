@@ -6,7 +6,7 @@ homogeneity tests, and the multi-subject transition-matrix syntax test.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numba import jit
+from ._compat import jit
 from scipy.stats import chi2
 
 from typing import Generic, Tuple, TypeVar

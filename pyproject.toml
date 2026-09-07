@@ -33,15 +33,14 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 requires-python = ">=3.8"
-dependencies = [
-    "numpy>=1.21",
-    "scipy>=1.7",
-    "matplotlib>=3.4",
-    "numba>=0.54",
-    "cffi>=1.15",
-]
+# Dependencies are computed in setup.py so a pure-Python wheel (MSTSA_PURE=1)
+# can drop numba/cffi, which are unavailable under Pyodide / JupyterLite.
+dynamic = ["dependencies"]
 
 [project.optional-dependencies]
+speed = [
+    "numba>=0.54",
+]
 dev = [
     "pytest",
     "pytest-cov",

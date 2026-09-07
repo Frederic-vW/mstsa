@@ -7,12 +7,13 @@ of discrete symbolic time series, with a focus on EEG microstate sequences.
 """
 
 import itertools
+import os
 import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from numba import jit
+from ._compat import jit
 from scipy.signal import welch
 from scipy.stats import chi2
 
@@ -36,40 +37,41 @@ class ScalarIntArray(np.ndarray, Generic[ScalarIntType]):
 class ScalarArray(np.ndarray, Generic[ScalarType]):
     pass
 
+# Optional compiled CFFI extensions.  They are absent on platforms that cannot
+# compile C at install time (notably Pyodide / JupyterLite); every function that
+# uses them has a pure-Python/NumPy fallback.  Set MSTSA_WARN_NO_CEXT=1 to be
+# warned at import time about which extensions are missing (useful when a source
+# build with a compiler was expected).
+_missing_cext = []
+
 try:
     from mstsa._c_entropy import ffi as _ffi_c_entropy, lib as _lib_c_entropy
 except ImportError:
     _ffi_c_entropy = None
     _lib_c_entropy = None
-    warnings.warn(
-        "mstsa: compiled extension '_c_entropy' not found; falling back to "
-        "the pure-Python/Numba implementation, which is considerably slower. "
-        "Reinstall mstsa with a working C compiler available to build the "
-        "faster extension."
-    )
+    _missing_cext.append("_c_entropy")
 
 try:
     from mstsa._se import ffi as _ffi_se, lib as _lib_se
 except ImportError:
     _ffi_se = None
     _lib_se = None
-    warnings.warn(
-        "mstsa: compiled extension '_se' not found; sample entropy will use "
-        "the pure-Python/Numba fallback, which is considerably slower. "
-        "Reinstall mstsa with a working C compiler available to build the "
-        "faster extension."
-    )
+    _missing_cext.append("_se")
 
 try:
     from mstsa._lz76 import ffi as _ffi_lz76, lib as _lib_lz76
 except ImportError:
     _ffi_lz76 = None
     _lib_lz76 = None
+    _missing_cext.append("_lz76")
+
+if _missing_cext and os.environ.get("MSTSA_WARN_NO_CEXT"):
     warnings.warn(
-        "mstsa: compiled extension '_lz76' not found; falling back to "
-        "the pure-Python/Numba implementation, which is considerably slower. "
-        "Reinstall mstsa with a working C compiler available to build the "
-        "faster extension."
+        "mstsa: compiled extensions not found: "
+        + ", ".join(_missing_cext)
+        + ". Falling back to the pure-Python/NumPy implementations, which are "
+        "considerably slower. Reinstall mstsa with a working C compiler "
+        "available to build the faster extensions."
     )
 
 

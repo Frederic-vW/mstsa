@@ -1,7 +1,7 @@
 """mstsa.eeg — functions operating on raw EEG data (not microstate sequences)."""
 
 import numpy as np
-from numba import jit
+from ._compat import jit
 from typing import Tuple
 
 from .mstsa import ScalarFloatArray, _ffi_se, _lib_se
