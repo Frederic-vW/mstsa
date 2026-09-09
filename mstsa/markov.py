@@ -704,7 +704,7 @@ def dur_occ_cov_mc(x: ScalarIntArray, fs: float, steady_state: bool = False) -> 
 def generator_matrix(x: ScalarIntArray = None,
                  T: ScalarFloatArray = None,
                  fs: float = 1) -> ScalarFloatArray:
-    """Continuous-time Markov chain (CTMC) generator matrix.
+    r"""Continuous-time Markov chain (CTMC) generator matrix.
 
     Computes the generator matrix *Q* from either an observed discrete
     sequence *x* or an explicit transition matrix *T*.

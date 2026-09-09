@@ -708,7 +708,7 @@ def test_jk_homogeneity(x: ScalarIntArray, K: int, l: int, alpha: float,
 
 
 def test_markov0(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
-    """Test zero-order Markovianity (i.i.d. assumption).
+    r"""Test zero-order Markovianity (i.i.d. assumption).
 
     Tests whether successive symbols are independent (i.e. whether the
     sequence is i.i.d.) using a likelihood-ratio (G) statistic against a
@@ -761,7 +761,7 @@ def test_markov0(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
 
 
 def test_markov1(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
-    """Test first-order Markovianity of a symbolic sequence.
+    r"""Test first-order Markovianity of a symbolic sequence.
 
     Tests whether the sequence satisfies the first-order Markov property
     (i.e. whether two-step transitions are consistent with one-step
@@ -813,7 +813,7 @@ def test_markov1(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
 
 
 def test_markov2(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
-    """Test second-order Markovianity of a symbolic sequence.
+    r"""Test second-order Markovianity of a symbolic sequence.
 
     Tests whether a first-order Markov chain is sufficient, or whether a
     second-order model is needed, using a likelihood-ratio (G) statistic.
@@ -865,7 +865,7 @@ def test_markov2(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
 
 
 def test_symmetry(x: ScalarIntArray, K: int, verbose: bool = True) -> float:
-    """Test symmetry of the transition matrix.
+    r"""Test symmetry of the transition matrix.
 
     Tests whether :math:`P(X_{t+1}=j \mid X_t=i) = P(X_{t+1}=i \mid X_t=j)`
     for all *i, j* using a likelihood-ratio (G) statistic.

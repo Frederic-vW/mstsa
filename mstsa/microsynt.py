@@ -63,7 +63,7 @@ class Microsynt(object):
             print("\tcheck EER normalization: ", np.sum(self.eer))
 
     def grow_list(self, l: list) -> list:
-        '''
+        r'''
         take list l, assumed to have string elements
         0) initialize empty list v (will be output)
         1) take last element e of l

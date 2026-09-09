@@ -377,7 +377,7 @@ def _diffusion_entropy_scale(y: ScalarFloatArray, lmin: int, lmax: int,
 def diffusion_entropy(x: ScalarIntArray, lmin: int, lmax: int,
                       fitmin: float, fitmax: float,
                       nsteps: int) -> ScalarFloatArray:
-    """Diffusion entropy analysis (DEA) of the characteristic microstate indicator functions.
+    r"""Diffusion entropy analysis (DEA) of the characteristic microstate indicator functions.
 
     For each symbol *k*, constructs the binary indicator sequence
     ``y_k[t] = 1 if x[t] == k else 0``. For each scale *l*, the sequence is
@@ -479,7 +479,7 @@ def embedded_process(x: ScalarIntArray, exclude_first: bool = True,
 def entropy_rate(x: ScalarIntArray, K: int, kmax: int,
                  doplot: bool = False,
                  base: str = '2') -> "tuple[float, float]":
-    """Estimate the entropy rate and excess entropy by linear regression.
+    r"""Estimate the entropy rate and excess entropy by linear regression.
 
     Fits :math:`H(X^{(k)}) = h \cdot k + E` over block lengths
     ``k = 1, ..., kmax+1``, where :math:`X^{(k)}` is a block of *k*
@@ -556,7 +556,7 @@ def entropy_rate(x: ScalarIntArray, K: int, kmax: int,
 
 
 def h1(x: ScalarIntArray, K: int, base: str = '2') -> float:
-    """Shannon entropy of a symbolic sequence.
+    r"""Shannon entropy of a symbolic sequence.
 
     Parameters
     ----------
@@ -626,7 +626,7 @@ def h2(x: ScalarIntArray, y: ScalarIntArray, K: int, base: str = '2') -> float:
 def hk(x: ScalarIntArray, K: int, k: int,
        bias_correction: bool = False,
        base: str = '2') -> float:
-    """Joint Shannon entropy of k consecutive symbols.
+    r"""Joint Shannon entropy of k consecutive symbols.
 
     Computes :math:`H(X_t, X_{t+1}, \ldots, X_{t+k-1})` from the empirical
     *k*-gram distribution.
@@ -1003,7 +1003,7 @@ def randomwalk(x: ScalarIntArray, part: list) -> ScalarFloatArray:
 
 
 def renyi_entropy(p: ScalarFloatArray, a: float, base: str = '2') -> float:
-    """Rényi entropy of order *a*.
+    r"""Rényi entropy of order *a*.
 
     Parameters
     ----------
@@ -1018,7 +1018,7 @@ def renyi_entropy(p: ScalarFloatArray, a: float, base: str = '2') -> float:
     -------
     H_a : float
         Rényi entropy
-        :math:`H_a(X) = \\frac{1}{1-a} \log\!\left(\sum_i p_i^a\\right)`.
+        :math:`H_a(X) = \frac{1}{1-a} \log\!\left(\sum_i p_i^a\right)`.
 
     Raises
     ------
@@ -1229,7 +1229,7 @@ def spectra(x: ScalarIntArray, fs: float, nperseg: int) -> Tuple[ScalarFloatArra
 
 
 def tsallis_entropy(p: ScalarFloatArray, q: float, base: str = '2') -> float:
-    """Tsallis entropy of order *q*.
+    r"""Tsallis entropy of order *q*.
 
     Parameters
     ----------
@@ -1247,7 +1247,7 @@ def tsallis_entropy(p: ScalarFloatArray, q: float, base: str = '2') -> float:
     -------
     H_q : float
         Tsallis entropy
-        :math:`H_q(X) = \\frac{1}{q-1}\\left(1 - \sum_i p_i^q\\right)`.
+        :math:`H_q(X) = \frac{1}{q-1}\left(1 - \sum_i p_i^q\right)`.
     """
     _log = np.log2 if base == '2' else np.log
     if q == 1:
