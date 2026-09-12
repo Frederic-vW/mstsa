@@ -1149,10 +1149,10 @@ def max_entropy_T(p: ScalarFloatArray, n_iter: int = 10_000,
     """Maximum-entropy-rate zero-diagonal transition matrix for a target
     stationary distribution.
 
-    Computes the row-stochastic matrix :math:`T^*` with zero diagonal (no
+    Computes the row-stochastic matrix :math:`T^{+}` with zero diagonal (no
     self-transitions) whose entropy rate is maximal among all zero-diagonal
     chains with stationary distribution exactly *p*. There is no closed
-    form: :math:`T^*` corresponds to the maximum-entropy coupling
+    form: :math:`T^{+}` corresponds to the maximum-entropy coupling
     :math:`\\pi_{ij} = p_i T_{ij}` of *p* with itself, supported off the
     diagonal, found via iterative proportional fitting (Sinkhorn scaling) —
     starting from any positive matrix on that support and alternately
@@ -1165,7 +1165,7 @@ def max_entropy_T(p: ScalarFloatArray, n_iter: int = 10_000,
     unlike the randomization test null hypothesis (Lehmann et al., 2005), which 
     normalizes each row of *p* without reproducing *p* as its own stationary 
     distribution), 
-    :math:`T^*` reproduces the empirical marginal exactly while otherwise 
+    :math:`T^{+}` reproduces the empirical marginal exactly while otherwise
     maximizing randomness of the transition structure.
 
     Parameters
