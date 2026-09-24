@@ -317,3 +317,47 @@ def test_sojourn_distribution_fit_returns_expected_structure():
         assert r["xmin"] > 0
         assert "power_law" in r["params"]
         assert set(r["comparisons"]) == {"exponential", "stretched_exponential", "lognormal"}
+
+
+# ── 11. Kullback likelihood-ratio Markov-order tests ─────────────────────────
+
+def _g_test_order_k(x, K, k):
+    """Reference G test of order-k vs order-(k+1) Markovianity.
+
+    T = 2 sum n_{i0..i_{k+1}} ln[ n_{i0..i_{k+1}} n_{i1..ik} / (n_{i0..ik} n_{i1..i_{k+1}}) ],
+    df = K**k (K-1)**2, from overlapping (k+2)-gram counts.
+    """
+    from scipy.stats import chi2
+    f = np.zeros((K,) * (k + 2))
+    for t in range(len(x) - k - 1):
+        f[tuple(x[t:t + k + 2])] += 1
+    f_head, f_tail = f.sum(axis=-1), f.sum(axis=0)
+    f_mid = f_head.sum(axis=0)          # k = 0: total number of (k+2)-grams
+    T = 0.0
+    for idx in np.ndindex(f.shape):
+        if f[idx] > 0:
+            T += f[idx] * np.log(f[idx] * f_mid[idx[1:-1]]
+                                 / (f_head[idx[:-1]] * f_tail[idx[1:]]))
+    return chi2.sf(2.0 * T, K**k * (K - 1)**2)
+
+
+@pytest.mark.parametrize("k", [0, 1, 2])
+def test_markov_tests_match_general_order_k_formula(k):
+    from mstsa import stats as mstats
+    x = np.random.default_rng(7).integers(0, 3, size=3000)
+    fn = [mstats.test_markov0, mstats.test_markov1, mstats.test_markov2][k]
+    assert fn(x, 3) == pytest.approx(_g_test_order_k(x, 3, k), rel=1e-9)
+
+
+def test_markov0_matches_scipy_g_test():
+    """test_markov0 is a G-test of independence on the (n-1)-bigram table."""
+    from scipy.stats import chi2_contingency
+    from mstsa import stats as mstats
+    x = np.random.default_rng(3).integers(0, 3, size=5000)
+    f = np.zeros((3, 3))
+    for a, b in zip(x[:-1], x[1:]):
+        f[a, b] += 1
+    _, p_ref, dof, _ = chi2_contingency(f, correction=False,
+                                        lambda_="log-likelihood")
+    assert dof == 4
+    assert mstats.test_markov0(x, 3) == pytest.approx(p_ref, rel=1e-9)
