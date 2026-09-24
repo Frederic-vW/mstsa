@@ -1161,6 +1161,26 @@ def max_entropy_T(p: ScalarFloatArray, n_iter: int = 10_000,
     with :math:`\\max_i p_i \\le 1/2` (the necessary and sufficient
     feasibility condition).
 
+    The entropy rate of the resulting chain is
+    :math:`h(T^{+}) = H(\\pi) - H(p)`, where
+    :math:`H(\\pi) = -\\sum_{ij} \\pi_{ij} \\log \\pi_{ij}` is the joint
+    entropy of the coupling and :math:`H(p) = -\\sum_i p_i \\log p_i` is the
+    stationary marginal entropy; since *p*, and hence :math:`H(p)`, is
+    fixed, maximizing :math:`H(\\pi)` over couplings with both marginals
+    equal to *p* and support off the diagonal is equivalent to maximizing
+    the entropy rate.
+
+    Using the product form :math:`\\pi_{ij} = c_i c_j` and the marginal
+    condition :math:`p_i = c_i(C - c_i)` with :math:`C = \\sum_k c_k`,
+    :math:`H(\\pi)` collapses to a single sum over states,
+    :math:`H(\\pi) = -2 \\sum_i p_i \\log c_i`, giving
+    :math:`h(T^{+}) = \\sum_i p_i \\log(p_i / c_i^2)`. This is not a closed
+    form in *p* alone, since the :math:`c_i` themselves solve the
+    self-consistent quadratic system above; for uniform *p* (:math:`p_i =
+    1/K`), symmetry gives :math:`c_i \\equiv 1/\\sqrt{K(K-1)}` and the
+    closed-form :math:`h(T^{+}) = \\log(K-1)` (the entropy rate of the
+    uniform zero-diagonal chain, as expected).
+
     Useful as a maximum-entropy null model for microstate transition syntax:
     unlike the randomization test null hypothesis (Lehmann et al., 2005), which 
     normalizes each row of *p* without reproducing *p* as its own stationary 
