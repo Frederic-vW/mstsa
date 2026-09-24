@@ -84,6 +84,7 @@ from .stats import (
     test_geometric_seq,
     test_j_homogeneity,
     test_jk_homogeneity,
+    test_markov,
     test_markov0,
     test_markov1,
     test_markov2,

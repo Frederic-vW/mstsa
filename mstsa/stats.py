@@ -865,6 +865,107 @@ def test_markov2(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
     return p
 
 
+def test_markov(x: ScalarIntArray, K: int, k: int,
+                verbose: bool = False) -> float:
+    r"""Test whether a symbolic sequence is a Markov chain of order *k*.
+
+    Likelihood-ratio (G) test of the order-*k* Markov property against the
+    alternative that the next symbol also depends on the symbol *k+1* steps
+    back.  ``test_markov(x, K, k)`` generalises :func:`test_markov0`,
+    :func:`test_markov1`, and :func:`test_markov2`, which correspond to
+    ``k = 0, 1, 2``.
+
+    Parameters
+    ----------
+    x : array_like of int, shape (N,)
+        Symbolic sequence with integer labels in ``[0, K)``.
+    K : int
+        Number of distinct symbols.
+    k : int
+        Markov order under the null hypothesis (``k >= 0``); ``k = 0`` tests
+        the i.i.d. hypothesis.
+    verbose : bool, optional
+        Print the test statistic, degrees of freedom, and p-value
+        (default False).
+
+    Returns
+    -------
+    p : float
+        p-value.  Small values reject the order-*k* Markov null hypothesis.
+
+    Raises
+    ------
+    ValueError
+        If ``k < 0``, ``len(x) < k + 2``, or the ``K**(k+2)`` table of
+        (k+2)-gram counts would exceed 5e7 cells.
+
+    Notes
+    -----
+    H₀: :math:`P(X_{t+k+1} \mid X_{t+k}, \ldots, X_t) =
+    P(X_{t+k+1} \mid X_{t+k}, \ldots, X_{t+1})`, i.e.
+    :math:`X_t \perp X_{t+k+1} \mid X_{t+1}, \ldots, X_{t+k}`.
+
+    With :math:`n_{i_0 \ldots i_{k+1}}` the overlapping (k+2)-gram counts,
+
+    .. math::
+
+        T_k = 2 \sum n_{i_0 \ldots i_{k+1}}
+              \ln \frac{n_{i_0 \ldots i_{k+1}}\, n_{i_1 \ldots i_k}}
+                       {n_{i_0 \ldots i_k}\, n_{i_1 \ldots i_{k+1}}},
+        \qquad
+        \mathrm{df} = K^k (K-1)^2 ,
+
+    where the marginals :math:`n_{i_0 \ldots i_k}`,
+    :math:`n_{i_1 \ldots i_{k+1}}`, and :math:`n_{i_1 \ldots i_k}` are the
+    head, tail, and middle k-gram counts (for ``k = 0`` the middle count is
+    the total number of bigrams).  :math:`T_k` is twice the number of
+    (k+2)-grams times the estimated conditional mutual information
+    :math:`I(X_t; X_{t+k+1} \mid X_{t+1}, \ldots, X_{t+k})`, and is
+    asymptotically :math:`\chi^2` with df equal to the difference in free
+    transition parameters between order *k+1* and order *k*,
+    :math:`K^{k+1}(K-1) - K^k(K-1)`.
+
+    The nominal df assumes all ``K**(k+2)`` cells are possible and well
+    populated; use ``N`` much larger than ``K**(k+2)`` (expected counts of
+    roughly 5 or more).  Structural zeros lower the true df.
+
+    References
+    ----------
+    .. [1] Kullback, S., Kupperman, M., & Ku, H. H. (1962). Tests for
+           contingency tables and Markov chains. *Technometrics*, 4(4),
+           573-608.
+    .. [2] Anderson, T. W. & Goodman, L. A. (1957). Statistical inference
+           about Markov chains. *Annals of Mathematical Statistics*, 28(1),
+           89-110.
+    """
+    x = np.asarray(x)
+    n = len(x)
+    if k < 0:
+        raise ValueError("test_markov: k must be >= 0.")
+    if n < k + 2:
+        raise ValueError(f"test_markov: need len(x) >= k+2 = {k + 2}, got {n}.")
+    if float(K) ** (k + 2) > 5e7:
+        raise ValueError(f"test_markov: K**(k+2) = {float(K) ** (k + 2):.3g} "
+                         f"cells is too large; reduce k.")
+    m = k + 2                                       # n-gram length
+    windows = np.lib.stride_tricks.sliding_window_view(x.astype(np.int64), m)
+    codes = windows @ (K ** np.arange(m - 1, -1, -1, dtype=np.int64))
+    f = np.bincount(codes, minlength=K**m).astype(float).reshape((K,) * m)
+    f_head = f.sum(axis=-1)                         # n_{i0..ik}
+    f_tail = f.sum(axis=0)                          # n_{i1..i(k+1)}
+    f_mid = f_head.sum(axis=0)                      # n_{i1..ik}; total if k=0
+    num = f * np.reshape(f_mid, (1,) + (K,) * k + (1,))
+    den = f_head[..., np.newaxis] * f_tail[np.newaxis, ...]
+    nz = f > 0
+    T = 2.0 * np.sum(f[nz] * np.log(num[nz] / den[nz]))
+    df = K**k * (K - 1) ** 2
+    p = chi2.sf(T, df, loc=0, scale=1)
+    if verbose:
+        print(f"[+] Markov test (order {k}):")
+        print(f"\tp: {p:.5f} | t: {T:.3f} | df: {df:.1f}")
+    return p
+
+
 def test_symmetry(x: ScalarIntArray, K: int, verbose: bool = True) -> float:
     """Test symmetry of the transition matrix.
 
