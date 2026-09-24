@@ -361,3 +361,37 @@ def test_markov0_matches_scipy_g_test():
                                         lambda_="log-likelihood")
     assert dof == 4
     assert mstats.test_markov0(x, 3) == pytest.approx(p_ref, rel=1e-9)
+
+
+@pytest.mark.parametrize("k", [0, 1, 2, 3])
+def test_markov_general_order_matches_reference(k):
+    from mstsa import stats as mstats
+    x = np.random.default_rng(11).integers(0, 3, size=4000)
+    assert mstats.test_markov(x, 3, k) == pytest.approx(
+        _g_test_order_k(x, 3, k), rel=1e-9)
+
+
+@pytest.mark.parametrize("k", [0, 1, 2])
+def test_markov_general_order_matches_specific_tests(k):
+    from mstsa import stats as mstats
+    x = np.random.default_rng(5).integers(0, 4, size=6000)
+    fn = [mstats.test_markov0, mstats.test_markov1, mstats.test_markov2][k]
+    assert mstats.test_markov(x, 4, k) == pytest.approx(fn(x, 4), rel=1e-9)
+
+
+def test_markov_detects_order():
+    """A first-order chain: order-0 rejected, order-1 and order-2 not."""
+    from mstsa import stats as mstats
+    T = np.array([[0.7, 0.2, 0.1], [0.1, 0.7, 0.2], [0.2, 0.1, 0.7]])
+    x = mc_sample_path(T=T, n=20_000)
+    assert mstats.test_markov(x, 3, 0) < 1e-6
+    assert mstats.test_markov(x, 3, 1) > 0.001
+    assert mstats.test_markov(x, 3, 2) > 0.001
+
+
+def test_markov_input_validation():
+    from mstsa import stats as mstats
+    with pytest.raises(ValueError):
+        mstats.test_markov([0, 1, 0], 2, -1)
+    with pytest.raises(ValueError):
+        mstats.test_markov([0, 1], 2, 1)
