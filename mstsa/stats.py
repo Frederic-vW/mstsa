@@ -743,11 +743,12 @@ def test_markov0(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
     f_ij = _count_transitions(x, n, K)
     f_i  = f_ij.sum(axis=1)
     f_j  = f_ij.sum(axis=0)
+    n_bigrams = f_ij.sum()  # n-1 overlapping pairs, not len(x)
     T = 0.0 # statistic
     for i, j in np.ndindex(f_ij.shape):
         f = f_ij[i,j]*f_i[i]*f_j[j]
         if (f > 0):
-            num_ = n*f_ij[i,j]
+            num_ = n_bigrams*f_ij[i,j]
             den_ = f_i[i]*f_j[j]
             T += (f_ij[i,j] * np.log(num_/den_))
     T *= 2.0
@@ -815,8 +816,8 @@ def test_markov1(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
 def test_markov2(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
     """Test second-order Markovianity of a symbolic sequence.
 
-    Tests whether a first-order Markov chain is sufficient, or whether a
-    second-order model is needed, using a likelihood-ratio (G) statistic.
+    Tests whether a second-order Markov chain is sufficient, or whether a
+    third-order model is needed, using a likelihood-ratio (G) statistic.
 
     Parameters
     ----------
@@ -830,8 +831,8 @@ def test_markov2(x: ScalarIntArray, K: int, verbose: bool = False) -> float:
     Returns
     -------
     p : float
-        p-value.  Small values reject the first-order Markov null hypothesis
-        in favour of a second-order model.
+        p-value.  Small values reject the second-order Markov null hypothesis
+        in favour of a third-order model.
 
     Notes
     -----
